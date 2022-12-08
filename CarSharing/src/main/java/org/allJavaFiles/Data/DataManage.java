@@ -92,8 +92,11 @@ public class DataManage extends Database {
 
     public void setRentedCarToCustomer(int carID) {
         try {
-            statement.executeUpdate("UPDATE customer SET RENTED_CAR_ID = " + carID +
-                    " WHERE ID = " + Logger.getCustomer().getId());
+            preparedStatement = connection.prepareStatement("UPDATE customer SET RENTED_CAR_ID = ? WHERE ID = ?;");
+            preparedStatement.setInt(1, carID);
+            preparedStatement.setInt(2, Logger.getCustomer().getId());
+            
+            preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -116,8 +119,9 @@ public class DataManage extends Database {
 
     public static void returnCar() {
         try {
-            statement.executeUpdate("UPDATE customer SET RENTED_CAR_ID = NULL" +
-                    " WHERE ID = " + Logger.getCustomer().getId());
+            preparedStatement = connection.prepareStatement("UPDATE customer SET RENTED_CAR_ID = NULL WHERE ID = ?;")
+            preparedStatement.setInt(Logger.getCustomer().getId());
+            preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
