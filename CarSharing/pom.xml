@@ -24,12 +24,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <!-- https://packages.jetbrains.team/maven/p/academy/hyperskill-hspc -->
-            <groupId>com.github.hyperskill</groupId>
-            <artifactId>hs-test</artifactId>
-            <version>release-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <!--        JUnit5 -->
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
