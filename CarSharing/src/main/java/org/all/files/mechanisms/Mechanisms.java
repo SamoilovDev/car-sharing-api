@@ -6,6 +6,7 @@ import org.all.files.dto.DataManage;
 import org.all.files.Main;
 import org.all.files.ui.UserInterface;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,27 +38,26 @@ public class Mechanisms {
     }
 
     public static UserInterface getCarList() {
-
-        if (Main.DATABASE.getCars().stream()
+        List<Car> carList = Main.DATABASE.getCars().stream()
                 .filter(c -> c.companyID() == Logger.company.id())
                 .filter(c -> !Logger.isLoggedCustomer || isNotCarRented(c.id()))
-                .toList().isEmpty()) {
+                .toList();
 
+        if (carList.isEmpty()) {
             System.out.println("The car list is empty!");
 
-            return Logger.isLoggedCustomer ? getCompanyList() : COMPANY_INTERFACE.action();
+            return Logger.isLoggedCustomer
+                    ? getCompanyList()
+                    : COMPANY_INTERFACE.action();
         } else {
-            System.out.println(Logger.isLoggedCustomer ? "Choose a car:" : "Car list:");
+            System.out.println(
+                    Logger.isLoggedCustomer
+                            ? "Choose a car:"
+                            : "Car list:"
+            );
 
             AtomicInteger counter = new AtomicInteger(0);
-            Main.DATABASE.getCars().stream()
-                    .filter(c -> c.companyID() == Logger.company.id())
-                    .filter(c -> !Logger.isLoggedCustomer || isNotCarRented(c.id()))
-                    .forEach(c -> {
-                        counter.getAndIncrement();
-                        System.out.printf("%s. %s%n", counter, c.name());
-                    });
-
+            carList.forEach(c -> System.out.printf("%s. %s%n", counter.getAndIncrement(), c.name()));
             System.out.println();
 
             return Logger.isLoggedCustomer
@@ -67,23 +67,19 @@ public class Mechanisms {
     }
 
     public static UserInterface getCustomerList() {
-
         if (Main.DATABASE.getCustomers().isEmpty()) {
             System.out.println("The customer list is empty!\n");
             return BACK.action();
         } else {
             System.out.println("Choose the customer:");
+
+            AtomicInteger number = new AtomicInteger(0);
+            Main.DATABASE.getCustomers().forEach(s -> System.out.printf("%s. %s%n", number.getAndIncrement(), s.name()));
+
+            System.out.println("0. Back\n");
+
+            return customerID(SCANNER.next().trim());
         }
-
-        AtomicInteger number = new AtomicInteger(0);
-        Main.DATABASE.getCustomers().forEach(s -> {
-            number.getAndIncrement();
-            System.out.printf("%s. %s%n", number, s.name());
-        });
-
-        System.out.println("0. Back\n");
-
-        return customerID(SCANNER.next().trim());
     }
 
     public static boolean isNotCarRented(int carID) {
@@ -98,7 +94,6 @@ public class Mechanisms {
     private static UserInterface rentCar(String request, int companyID) {
         try {
             int requestInt = Integer.parseInt(request);
-
             if (requestInt == 0) return Mechanisms.getCompanyList();
 
             Optional<Car> optionalCar = Main.DATABASE.getCars().stream()
@@ -153,20 +148,16 @@ public class Mechanisms {
     private static UserInterface customerID(String request) {
         try {
             int requestInt = Integer.parseInt(request);
-
             if (requestInt == 0) return BACK.action();
 
             try {
                 Logger.customer = Main.DATABASE.getCustomers().get(requestInt - 1);
-
                 checkCustomerByRent();
-
                 return CUSTOMER_INTERFACE.action();
             } catch (IndexOutOfBoundsException ex) {
                 System.out.println("Wrong number of action!\n");
                 return BACK.action();
             }
-
 
         } catch (NumberFormatException e) {
             System.out.println("Wrong action! Please, write a number.\n");
