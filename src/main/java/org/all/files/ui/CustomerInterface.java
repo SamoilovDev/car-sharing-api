@@ -1,7 +1,7 @@
 package org.all.files.ui;
 
-import org.all.files.dto.DataManage;
-import org.all.files.mechanisms.Logger;
+import org.all.files.database.DataManage;
+import org.all.files.mechanisms.FieldLogger;
 import org.all.files.mechanisms.Mechanisms;
 
 import java.util.Objects;
@@ -49,7 +49,7 @@ public enum CustomerInterface implements UserInterface {
             );
 
             DataManage.returnCar();
-            Logger.car = null;
+            FieldLogger.car = null;
 
             return CUSTOMER_INTERFACE.action();
         }
@@ -63,7 +63,7 @@ public enum CustomerInterface implements UserInterface {
                             %s
                             Company:
                             %s
-                        """, Logger.car.name(), Logger.company.name());
+                        """, FieldLogger.car.name(), FieldLogger.company.name());
             } else {
                 System.out.println("You didn't rent a car!");
             }

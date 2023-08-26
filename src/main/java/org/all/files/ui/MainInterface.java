@@ -1,7 +1,7 @@
 package org.all.files.ui;
 
 import org.all.files.Main;
-import org.all.files.mechanisms.Logger;
+import org.all.files.mechanisms.FieldLogger;
 import org.all.files.mechanisms.Mechanisms;
 
 import java.util.Scanner;
@@ -18,28 +18,21 @@ public enum MainInterface implements UserInterface {
                     0. Exit""");
 
             return switch (SCANNER.next().trim()) {
-                case "1" -> LOG_IN_MANAGER.action();
-                case "2" -> LOG_IN_CUSTOMER.action();
+                case "1" -> ManagerInterface.MANAGER_INTERFACE.action();
+                case "2" -> {
+                    FieldLogger.isLoggedCustomer = true;
+                    yield Mechanisms.getCustomerList();
+                }
                 case "3" -> CREATE_CUSTOMER.action();
                 case "0" -> EXIT.action();
-                default -> ERROR.action();
+                default -> {
+                    System.out.println("Wrong num of action!");
+                    yield MAIN_INTERFACE.action();
+                }
             };
 
         }
 
-    },
-    LOG_IN_MANAGER {
-        @Override
-        public UserInterface action() {
-            return ManagerInterface.MANAGER_INTERFACE.action();
-        }
-    },
-    LOG_IN_CUSTOMER {
-        @Override
-        public UserInterface action() {
-            Logger.isLoggedCustomer = true;
-            return Mechanisms.getCustomerList();
-        }
     },
     CREATE_CUSTOMER {
         @Override
@@ -56,7 +49,7 @@ public enum MainInterface implements UserInterface {
     BACK {
         @Override
         public UserInterface action() {
-            Logger.rollBack();
+            FieldLogger.rollBack();
             return MAIN_INTERFACE.action();
         }
     },

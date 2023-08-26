@@ -1,4 +1,4 @@
-package org.all.files.data;
+package org.all.files.dto;
 
 import lombok.Builder;
 

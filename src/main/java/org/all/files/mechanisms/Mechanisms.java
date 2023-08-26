@@ -1,8 +1,8 @@
 package org.all.files.mechanisms;
 
-import org.all.files.data.Car;
-import org.all.files.data.Customer;
-import org.all.files.dto.DataManage;
+import org.all.files.dto.Car;
+import org.all.files.dto.Customer;
+import org.all.files.database.DataManage;
 import org.all.files.Main;
 import org.all.files.ui.UserInterface;
 
@@ -21,7 +21,7 @@ public class Mechanisms {
         if (Main.DATABASE.getCompanies().isEmpty()) {
             System.out.println("The company list is empty!\n");
 
-            return Logger.isLoggedCustomer
+            return FieldLogger.isLoggedCustomer
                     ? CUSTOMER_INTERFACE.action()
                     : MANAGER_INTERFACE.action();
         } else {
@@ -39,19 +39,19 @@ public class Mechanisms {
 
     public static UserInterface getCarList() {
         List<Car> carList = Main.DATABASE.getCars().stream()
-                .filter(c -> c.companyID() == Logger.company.id())
-                .filter(c -> !Logger.isLoggedCustomer || isNotCarRented(c.id()))
+                .filter(c -> c.companyID() == FieldLogger.company.id())
+                .filter(c -> !FieldLogger.isLoggedCustomer || isNotCarRented(c.id()))
                 .toList();
 
         if (carList.isEmpty()) {
             System.out.println("The car list is empty!");
 
-            return Logger.isLoggedCustomer
+            return FieldLogger.isLoggedCustomer
                     ? getCompanyList()
                     : COMPANY_INTERFACE.action();
         } else {
             System.out.println(
-                    Logger.isLoggedCustomer
+                    FieldLogger.isLoggedCustomer
                             ? "Choose a car:"
                             : "Car list:"
             );
@@ -60,8 +60,8 @@ public class Mechanisms {
             carList.forEach(c -> System.out.printf("%s. %s%n", counter.getAndIncrement(), c.name()));
             System.out.println();
 
-            return Logger.isLoggedCustomer
-                    ? rentCar(SCANNER.next().trim(), Logger.company.id())
+            return FieldLogger.isLoggedCustomer
+                    ? rentCar(SCANNER.next().trim(), FieldLogger.company.id())
                     :  COMPANY_INTERFACE.action();
         }
     }
@@ -106,7 +106,7 @@ public class Mechanisms {
             } else {
                 Car car = optionalCar.get();
                 Main.DATABASE.setRentedCarToCustomer(car.id());
-                Logger.car = car;
+                FieldLogger.car = car;
 
                 System.out.printf("You rented '%s'%n", car.name());
 
@@ -120,7 +120,7 @@ public class Mechanisms {
     }
 
     private static UserInterface companyID(String request) {
-        UserInterface menu = Logger.isLoggedCustomer ?
+        UserInterface menu = FieldLogger.isLoggedCustomer ?
                 CUSTOMER_INTERFACE : MANAGER_INTERFACE;
 
         try {
@@ -129,8 +129,8 @@ public class Mechanisms {
             if (requestInt == 0) return menu.action();
 
             try {
-                Logger.company = Main.DATABASE.getCompanies().get(requestInt - 1);
-                return Logger.isLoggedCustomer
+                FieldLogger.company = Main.DATABASE.getCompanies().get(requestInt - 1);
+                return FieldLogger.isLoggedCustomer
                         ? getCarList()
                         : COMPANY_INTERFACE.action();
             } catch (IndexOutOfBoundsException ex) {
@@ -151,7 +151,7 @@ public class Mechanisms {
             if (requestInt == 0) return BACK.action();
 
             try {
-                Logger.customer = Main.DATABASE.getCustomers().get(requestInt - 1);
+                FieldLogger.customer = Main.DATABASE.getCustomers().get(requestInt - 1);
                 checkCustomerByRent();
                 return CUSTOMER_INTERFACE.action();
             } catch (IndexOutOfBoundsException ex) {
@@ -167,8 +167,8 @@ public class Mechanisms {
 
     private static void checkCustomerByRent() {
         if (! Objects.equals(DataManage.rentedCarID(), null)) {
-            Logger.car = Main.DATABASE.getCars().get(DataManage.rentedCarID() - 1);
-            Logger.company = Main.DATABASE.getCompanies().get(Logger.car.companyID() - 1);
+            FieldLogger.car = Main.DATABASE.getCars().get(DataManage.rentedCarID() - 1);
+            FieldLogger.company = Main.DATABASE.getCompanies().get(FieldLogger.car.companyID() - 1);
         }
     }
 

@@ -1,10 +1,12 @@
 package org.all.files.mechanisms;
 
-import org.all.files.data.Car;
-import org.all.files.data.Company;
-import org.all.files.data.Customer;
+import lombok.experimental.UtilityClass;
+import org.all.files.dto.Car;
+import org.all.files.dto.Company;
+import org.all.files.dto.Customer;
 
-public class Logger {
+@UtilityClass
+public class FieldLogger {
 
     public static boolean isLoggedCustomer;
 

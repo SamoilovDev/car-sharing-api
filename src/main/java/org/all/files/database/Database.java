@@ -1,12 +1,13 @@
-package org.all.files.dto;
+package org.all.files.database;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
+import java.util.Objects;
 
-@Getter
-@Setter
+@Data
+@Slf4j
 public class Database {
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -17,28 +18,26 @@ public class Database {
 
     private static final String PASS = "qq11qq22qq33";
 
-    public static Connection connection;
+    private final Connection connection;
 
-    public static PreparedStatement preparedStatement;
+    private final Statement statement;
 
-    public static Statement statement;
-
-
-    public void getConnection() {
+    public Database() {
         try {
             Class.forName(JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+
+            this.connection = DriverManager.getConnection(DB_URL, USER, PASS);
+            this.statement = connection.createStatement();
+
             connection.setAutoCommit(true);
-            createTables();
+            this.createTables();
         } catch (SQLException | ClassNotFoundException e) {
-            System.err.println("Failed to get connection with db, check the url: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
+            log.error("Failed to get connection with db, check the url: " + e.getMessage());
         }
     }
 
     public void createTables() throws SQLException {
-        statement = connection.createStatement();
-
         statement.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS COMPANY (
                     ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -66,9 +65,11 @@ public class Database {
 
     public void closeDB() {
         try {
-            if (connection != null) connection.close();
+            if (Objects.nonNull(connection)) {
+                connection.close();
+            }
         } catch (SQLException se) {
-            se.printStackTrace();
+            log.error("Failed to close connection with db: " + se.getMessage());
         }
     }
 
@@ -76,7 +77,7 @@ public class Database {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TABLE IF EXISTS ".concat(tableName.trim().toUpperCase()));
         } catch (SQLException e) {
-            e.getStackTrace();
+            log.error("Failed to drop table: " + e.getMessage());
         }
     }
 
