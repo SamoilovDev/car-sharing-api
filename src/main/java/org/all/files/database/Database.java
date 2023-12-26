@@ -11,12 +11,32 @@ import java.util.Objects;
 public class Database {
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-
     private static final String DB_URL = "jdbc:mysql://localhost:3306/carsharing";
-
     private static final String USER = "root";
-
     private static final String PASS = "qq11qq22qq33";
+    private static final String CREATE_COMPANY_TABLE = """
+            CREATE TABLE IF NOT EXISTS COMPANY (
+                ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                NAME VARCHAR(255) UNIQUE NOT NULL
+            );""";
+    private static final String CREATE_CAR_TABLE = """
+            CREATE TABLE IF NOT EXISTS CAR (
+                ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                NAME VARCHAR(255) UNIQUE NOT NULL,
+                COMPANY_ID INT UNSIGNED,
+                FOREIGN KEY (COMPANY_ID) REFERENCES COMPANY(ID)
+                ON DELETE SET NULL
+                ON UPDATE CASCADE
+            );""";
+    private static final String CREATE_CUSTOMER_TABLE = """ 
+            CREATE TABLE IF NOT EXISTS CUSTOMER (
+                ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                NAME VARCHAR(255) UNIQUE NOT NULL,
+                RENTED_CAR_ID INT UNSIGNED DEFAULT NULL,
+                FOREIGN KEY (RENTED_CAR_ID) REFERENCES CAR(ID)
+                ON DELETE SET NULL
+                ON UPDATE CASCADE
+        );""";
 
     private final Connection connection;
 
@@ -25,42 +45,20 @@ public class Database {
     public Database() {
         try {
             Class.forName(JDBC_DRIVER);
-
             this.connection = DriverManager.getConnection(DB_URL, USER, PASS);
             this.statement = connection.createStatement();
-
             connection.setAutoCommit(true);
             this.createTables();
         } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
             log.error("Failed to get connection with db, check the url: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
     public void createTables() throws SQLException {
-        statement.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS COMPANY (
-                    ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-                    NAME VARCHAR(255) UNIQUE NOT NULL
-                );""");
-        statement.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS CAR (
-                    ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-                    NAME VARCHAR(255) UNIQUE NOT NULL,
-                    COMPANY_ID INT UNSIGNED,
-                    FOREIGN KEY (COMPANY_ID) REFERENCES COMPANY(ID)
-                    ON DELETE SET NULL
-                    ON UPDATE CASCADE
-                );""");
-        statement.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS CUSTOMER (
-                    ID INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-                    NAME VARCHAR(255) UNIQUE NOT NULL,
-                    RENTED_CAR_ID INT UNSIGNED DEFAULT NULL,
-                    FOREIGN KEY (RENTED_CAR_ID) REFERENCES CAR(ID)
-                    ON DELETE SET NULL
-                    ON UPDATE CASCADE
-                );""");
+        statement.executeUpdate(CREATE_COMPANY_TABLE);
+        statement.executeUpdate(CREATE_CAR_TABLE);
+        statement.executeUpdate(CREATE_CUSTOMER_TABLE);
     }
 
     public void closeDB() {
@@ -82,10 +80,3 @@ public class Database {
     }
 
 }
-
-//DBMS: MySQL (ver. 8.0.31)
-//        Case sensitivity: plain=lower, delimited=lower
-//        Driver: MySQL Connector/J (ver. mysql-connector-java-8.0.25 (Revision: 08be9e9b4cba6aa115f9b27b215887af40b159e0), JDBC4.2)
-//
-//        Ping: 38 ms
-//        SSL: yes

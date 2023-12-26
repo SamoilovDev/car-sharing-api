@@ -21,7 +21,7 @@ public class Mechanisms {
         if (Main.DATABASE.getCompanies().isEmpty()) {
             System.out.println("The company list is empty!\n");
 
-            return FieldLogger.isLoggedCustomer
+            return FieldCache.isLoggedCustomer
                     ? CUSTOMER_INTERFACE.action()
                     : MANAGER_INTERFACE.action();
         } else {
@@ -39,19 +39,19 @@ public class Mechanisms {
 
     public static UserInterface getCarList() {
         List<Car> carList = Main.DATABASE.getCars().stream()
-                .filter(c -> c.companyID() == FieldLogger.company.id())
-                .filter(c -> !FieldLogger.isLoggedCustomer || isNotCarRented(c.id()))
+                .filter(c -> c.companyID() == FieldCache.company.id())
+                .filter(c -> !FieldCache.isLoggedCustomer || isNotCarRented(c.id()))
                 .toList();
 
         if (carList.isEmpty()) {
             System.out.println("The car list is empty!");
 
-            return FieldLogger.isLoggedCustomer
+            return FieldCache.isLoggedCustomer
                     ? getCompanyList()
                     : COMPANY_INTERFACE.action();
         } else {
             System.out.println(
-                    FieldLogger.isLoggedCustomer
+                    FieldCache.isLoggedCustomer
                             ? "Choose a car:"
                             : "Car list:"
             );
@@ -60,8 +60,8 @@ public class Mechanisms {
             carList.forEach(c -> System.out.printf("%s. %s%n", counter.getAndIncrement(), c.name()));
             System.out.println();
 
-            return FieldLogger.isLoggedCustomer
-                    ? rentCar(SCANNER.next().trim(), FieldLogger.company.id())
+            return FieldCache.isLoggedCustomer
+                    ? rentCar(SCANNER.next().trim(), FieldCache.company.id())
                     :  COMPANY_INTERFACE.action();
         }
     }
@@ -106,7 +106,7 @@ public class Mechanisms {
             } else {
                 Car car = optionalCar.get();
                 Main.DATABASE.setRentedCarToCustomer(car.id());
-                FieldLogger.car = car;
+                FieldCache.car = car;
 
                 System.out.printf("You rented '%s'%n", car.name());
 
@@ -120,7 +120,7 @@ public class Mechanisms {
     }
 
     private static UserInterface companyID(String request) {
-        UserInterface menu = FieldLogger.isLoggedCustomer ?
+        UserInterface menu = FieldCache.isLoggedCustomer ?
                 CUSTOMER_INTERFACE : MANAGER_INTERFACE;
 
         try {
@@ -129,8 +129,8 @@ public class Mechanisms {
             if (requestInt == 0) return menu.action();
 
             try {
-                FieldLogger.company = Main.DATABASE.getCompanies().get(requestInt - 1);
-                return FieldLogger.isLoggedCustomer
+                FieldCache.company = Main.DATABASE.getCompanies().get(requestInt - 1);
+                return FieldCache.isLoggedCustomer
                         ? getCarList()
                         : COMPANY_INTERFACE.action();
             } catch (IndexOutOfBoundsException ex) {
@@ -151,7 +151,7 @@ public class Mechanisms {
             if (requestInt == 0) return BACK.action();
 
             try {
-                FieldLogger.customer = Main.DATABASE.getCustomers().get(requestInt - 1);
+                FieldCache.customer = Main.DATABASE.getCustomers().get(requestInt - 1);
                 checkCustomerByRent();
                 return CUSTOMER_INTERFACE.action();
             } catch (IndexOutOfBoundsException ex) {
@@ -167,8 +167,8 @@ public class Mechanisms {
 
     private static void checkCustomerByRent() {
         if (! Objects.equals(DataManage.rentedCarID(), null)) {
-            FieldLogger.car = Main.DATABASE.getCars().get(DataManage.rentedCarID() - 1);
-            FieldLogger.company = Main.DATABASE.getCompanies().get(FieldLogger.car.companyID() - 1);
+            FieldCache.car = Main.DATABASE.getCars().get(DataManage.rentedCarID() - 1);
+            FieldCache.company = Main.DATABASE.getCompanies().get(FieldCache.car.companyID() - 1);
         }
     }
 

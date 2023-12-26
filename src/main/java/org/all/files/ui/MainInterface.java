@@ -1,7 +1,8 @@
 package org.all.files.ui;
 
 import org.all.files.Main;
-import org.all.files.mechanisms.FieldLogger;
+import org.all.files.database.DataManage;
+import org.all.files.mechanisms.FieldCache;
 import org.all.files.mechanisms.Mechanisms;
 
 import java.util.Scanner;
@@ -10,7 +11,6 @@ public enum MainInterface implements UserInterface {
     MAIN_INTERFACE {
         @Override
         public UserInterface action() {
-
             System.out.println("""
                     1. Log in as a manager
                     2. Log in as a customer
@@ -20,7 +20,7 @@ public enum MainInterface implements UserInterface {
             return switch (SCANNER.next().trim()) {
                 case "1" -> ManagerInterface.MANAGER_INTERFACE.action();
                 case "2" -> {
-                    FieldLogger.isLoggedCustomer = true;
+                    FieldCache.isLoggedCustomer = true;
                     yield Mechanisms.getCustomerList();
                 }
                 case "3" -> CREATE_CUSTOMER.action();
@@ -39,7 +39,7 @@ public enum MainInterface implements UserInterface {
         public UserInterface action() {
             System.out.println("Enter the customer name:");
 
-            SCANNER.nextLine();
+            MainInterface.SCANNER.nextLine();
             Main.DATABASE.addNewCustomer(SCANNER.nextLine().trim());
             System.out.println("The customer was added!");
 
@@ -49,14 +49,14 @@ public enum MainInterface implements UserInterface {
     BACK {
         @Override
         public UserInterface action() {
-            FieldLogger.rollBack();
+            FieldCache.rollBack();
             return MAIN_INTERFACE.action();
         }
     },
     EXIT {
         @Override
         public UserInterface action() {
-            Main.DATABASE.closeDB();
+            DataManage.DATABASE.closeDB();
             return EXIT;
         }
     },

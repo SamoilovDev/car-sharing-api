@@ -2,7 +2,7 @@ package org.all.files.ui;
 
 import org.all.files.Main;
 import org.all.files.mechanisms.Mechanisms;
-import org.all.files.mechanisms.FieldLogger;
+import org.all.files.mechanisms.FieldCache;
 
 import static org.all.files.ui.MainInterface.SCANNER;
 
@@ -15,7 +15,7 @@ public enum CompanyInterface implements UserInterface {
                     1. Car list
                     2. Create a car
                     0. Back
-                    """, FieldLogger.customer.name());
+                    """, FieldCache.customer.name());
 
             return switch (SCANNER.next().trim()) {
                 case "1" -> CAR_LIST.action();
@@ -37,7 +37,7 @@ public enum CompanyInterface implements UserInterface {
             System.out.println("Enter the car name:");
 
             SCANNER.nextLine();
-            Main.DATABASE.addNewCar(SCANNER.nextLine().trim(), FieldLogger.customer.id());
+            Main.DATABASE.addNewCar(SCANNER.nextLine().trim(), FieldCache.customer.id());
 
             System.out.println("The car was added!");
 

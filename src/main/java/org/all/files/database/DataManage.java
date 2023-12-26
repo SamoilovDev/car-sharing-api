@@ -3,7 +3,7 @@ package org.all.files.database;
 import org.all.files.dto.Car;
 import org.all.files.dto.Company;
 import org.all.files.dto.Customer;
-import org.all.files.mechanisms.FieldLogger;
+import org.all.files.mechanisms.FieldCache;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DataManage {
 
-    private static final Database DATABASE = new Database();
+    public static final Database DATABASE = new Database();
 
     public void addNewCompany(String companyName) {
         try {
@@ -105,7 +105,7 @@ public class DataManage {
                     .getConnection()
                     .prepareStatement("UPDATE customer SET RENTED_CAR_ID = ? WHERE ID = ?;");
             preparedStatement.setInt(1, carID);
-            preparedStatement.setInt(2, FieldLogger.customer.id());
+            preparedStatement.setInt(2, FieldCache.customer.id());
             
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -120,7 +120,7 @@ public class DataManage {
             PreparedStatement preparedStatement = DATABASE
                     .getConnection()
                     .prepareStatement("SELECT RENTED_CAR_ID FROM customer WHERE ID = ?;");
-            preparedStatement.setInt(1, FieldLogger.customer.id());
+            preparedStatement.setInt(1, FieldCache.customer.id());
 
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
@@ -137,7 +137,7 @@ public class DataManage {
                     .getConnection()
                     .prepareStatement("UPDATE customer SET RENTED_CAR_ID = NULL WHERE ID = ?;");
 
-            preparedStatement.setInt(1, FieldLogger.customer.id());
+            preparedStatement.setInt(1, FieldCache.customer.id());
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);

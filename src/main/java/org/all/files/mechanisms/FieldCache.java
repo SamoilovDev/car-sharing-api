@@ -6,7 +6,7 @@ import org.all.files.dto.Company;
 import org.all.files.dto.Customer;
 
 @UtilityClass
-public class FieldLogger {
+public class FieldCache {
 
     public static boolean isLoggedCustomer;
 

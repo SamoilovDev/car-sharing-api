@@ -1,10 +1,11 @@
 package org.all.files.ui;
 
 import org.all.files.database.DataManage;
-import org.all.files.mechanisms.FieldLogger;
+import org.all.files.mechanisms.FieldCache;
 import org.all.files.mechanisms.Mechanisms;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.all.files.ui.MainInterface.BACK;
 import static org.all.files.ui.MainInterface.SCANNER;
@@ -42,14 +43,12 @@ public enum CustomerInterface implements UserInterface {
     RETURN_CAR {
         @Override
         public UserInterface action() {
-            System.out.println(
-                    ! Objects.equals(DataManage.rentedCarID(), null)
-                            ? "You've returned a rented car!"
-                            : "You didn't rent a car!"
-            );
+            System.out.println(Optional.ofNullable(DataManage.rentedCarID())
+                    .map(ignored -> "You've returned a rented car!")
+                    .orElse("You didn't rent a car!"));
 
             DataManage.returnCar();
-            FieldLogger.car = null;
+            FieldCache.car = null;
 
             return CUSTOMER_INTERFACE.action();
         }
@@ -57,16 +56,16 @@ public enum CustomerInterface implements UserInterface {
     MY_CAR {
         @Override
         public UserInterface action() {
-            if (!Objects.equals(DataManage.rentedCarID(), null)) {
-                System.out.printf("""
-                            Your rented car:
-                            %s
-                            Company:
-                            %s
-                        """, FieldLogger.car.name(), FieldLogger.company.name());
-            } else {
-                System.out.println("You didn't rent a car!");
-            }
+            Optional.ofNullable(DataManage.rentedCarID())
+                    .ifPresentOrElse(
+                            ignored -> System.out.printf("""
+                                            Your rented car:
+                                            %s
+                                            Company:
+                                            %s
+                                        """, FieldCache.car.name(), FieldCache.company.name()),
+                            () -> System.out.println("You didn't rent a car!")
+                    );
 
             return CUSTOMER_INTERFACE.action();
         }
